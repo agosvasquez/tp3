@@ -11,7 +11,7 @@ namespace{
 ClientProxy::ClientProxy(){}
 
 ClientProxy::~ClientProxy(){
-    socket.socket_shutdown(SHUT_RDWR);
+
 }
 
 void ClientProxy::run(std::string line){
@@ -29,8 +29,7 @@ void ClientProxy::send_command(char* data, int size){
     if (bytes <= 0) {
         throw ClientExeption();
     }
-    std::cout << "strlen " <<  size << std::endl; 
-    std::cout << "bytes " << bytes << std::endl;
+    
 }
 
 char* ClientProxy::recive_answer(){
@@ -41,7 +40,6 @@ char* ClientProxy::recive_answer(){
         throw ClientExeption();
     }
     
-    std::cout << "size answer " << size << std::endl; 
     if (socket.socket_receive(data_rec, size+1)<0) {
         throw ClientExeption();
     }
@@ -53,7 +51,6 @@ char* ClientProxy::recive_answer(){
 
 void ClientProxy::connect(char*host, char* service){
     if(socket.socket_connect(host, service)<0){
-        std::cout << "FALLO!!!";
         throw ClientExeption(); 
     } 
 }

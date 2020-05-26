@@ -66,14 +66,14 @@ std::tuple<int,char*>  ServerHelper::decode_command(char command,short rec, int 
             f = std::to_string(3)+ M;
         }
         size = f.size();
-        std::cout << "len a guardar " << size << std::endl;
+        
         memcpy(s,(char*)&size, sizeof(int));
         memcpy(s+4, f.c_str(), size);
     }
     memcpy(s+size+4,"\0", sizeof(char));
     std::get<0>(tuple) = size+4+1;
     std::get<1>(tuple) = s;
-    std::cout <<"Tuple len"<< std::get<0>(tuple);
+  
     return tuple;
 }
 

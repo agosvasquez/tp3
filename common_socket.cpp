@@ -158,10 +158,9 @@ int Socket::socket_receive(char* buff, size_t length){
         if (bytes == 0) return 0;
         sum_b += bytes;
         to_read -= bytes;
-        std::cout << "receive " << to_read << std::endl;
+    
     }
     memcpy(buff + length, "\0", 1);
-    std::cout << "saliendo " << std::endl;
-    std::cout << "buff " << buff << std::endl;
+    
     return sum_b;
 }

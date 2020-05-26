@@ -28,10 +28,10 @@ ClientEncode::~ClientEncode(){}
         memcpy(buff+1,&c, sizeof(char));
         std::get<0>(tuple) = 1;
     }else if (is_number(line)){
-        std::cout << "number" << std::endl;
+        
         memcpy(buff,&n, sizeof(char));
         short number = (short) std::stoi(line);
-        std::cout << "number stoi " << number<<std::endl;
+        
         memcpy(buff+1,(char*)&number, sizeof(short));
         memcpy(buff+3,&c, sizeof(char));
         std::get<0>(tuple) = 3;
