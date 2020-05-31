@@ -35,6 +35,7 @@ void Socket::socket_settings(struct addrinfo& hints){
 }
 
 void Socket::socket_shutdown(int channel){
+    //std::cout << "shutdown: "<< fd;
     shutdown(fd, channel);
     close(fd);
     fd = -1;

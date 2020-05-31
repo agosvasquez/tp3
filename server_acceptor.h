@@ -17,6 +17,7 @@ public:
     ~Acceptor();
     void run();
     void stop();
+    void remove();
 };
 
 #endif

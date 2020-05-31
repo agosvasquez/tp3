@@ -36,11 +36,11 @@ char* ClientProxy::recive_answer(){
     uint32_t size=0;;
     memset(data_rec,0,256);
     //getting size
-    if (socket.socket_receive((char*)&size, SIZE_STRING)<0) {
+    if (socket.socket_receive((char*)&size, SIZE_STRING)<=0) {
         throw ClientExeption();
     }
     
-    if (socket.socket_receive(data_rec, size+1)<0) {
+    if (socket.socket_receive(data_rec, size+1)<=0) {
         throw ClientExeption();
     }
     static char aux[256];

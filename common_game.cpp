@@ -3,7 +3,7 @@
 #include <iostream>
 #include <algorithm>
 
-Game::Game(std::string file_name):file(file_name),intents(10){}
+Game::Game(std::string file_name):file(file_name),intents(10), winners(0), losers(0){}
 
 Game::~Game(){}
 
@@ -11,9 +11,9 @@ int Game::get_secret_number(){
     std::string line;
     if(!file.read(std::ref(line))){ 
         file.go_first();
-        file.read(std::ref(line));
-    }
-    std::cout <<"geting numb: " << line << std::endl;
+    }   
+    //std::cout <<"geting numb: " << line << std::endl;
+    if(file.read(std::ref(line))) throw BadFile();
     return (int)std::stoi(line);
 }
 
@@ -28,7 +28,7 @@ int Game::check_good_d(int number, int my_number){
     if(n[1] == m[1])count++;
     if(n[2] == m[2])count++;
 
-    std::cout<<"count good" << count;
+   // std::cout<<"count good" << count;
 
     return count;
 }
@@ -38,11 +38,11 @@ int Game::check_regular_d(std::vector<int>& d, int number){
     std::vector<int> my_digits;
     to_vect(number, my_digits);
     for(int i =0; i <(int)d.size(); i++){
-        std::cout<<"en game my dig " << my_digits[0]<<" "<<  my_digits[1]<<" "<<  my_digits[2];
+        //std::cout<<"en game my dig " << my_digits[0]<<" "<<  my_digits[1]<<" "<<  my_digits[2];
         if (std::find(my_digits.begin(), my_digits.end(), d[i]) != my_digits.end()) 
             count++;
     }
-    std::cout<<"count reg " << count;
+    //std::cout<<"count reg " << count;
     return count;
 }
 
@@ -55,4 +55,18 @@ void Game::to_vect(int number, std::vector<int>& my_digits){
     my_digits.push_back(n3);
     my_digits.push_back(n2);
     my_digits.push_back(n1);
+}
+
+void Game::increment_losers(){
+    losers++;
+}
+
+void Game::increment_winners(){
+    winners++;
+}
+
+void Game::stadistics(){
+    std::cout << "Estadísticas:" << std::endl;
+    std::cout<< "Ganadores: " << winners <<std::endl;
+    std::cout <<"Perdedores: "<<losers <<std::endl;
 }

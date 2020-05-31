@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
         try{
             client_proxy.run(line);
         }catch(const std::exception& e){
-            std::cout << "Finiish"<< std::endl; 
+            //std::cout << "Finiish"<< std::endl; 
             break;
         }
     }

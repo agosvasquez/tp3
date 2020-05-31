@@ -56,7 +56,7 @@ std::tuple<int,char*>  ServerHelper::decode_command(char command,short rec, int 
         std::string f;
 
         if (good > 0 && reg > 0){
-           f = g +B+","+r + R;
+           f = g +B+", "+r + R;
         } else if(reg > 0){
             f= r + R;
         }else if(good == 3) f = G;
@@ -84,7 +84,7 @@ bool ServerHelper::split_in_digits(int number){
     number /= 10;
     int n3 = number%10;
 
-    std::cout<<"verify" << n1 << n2 << n3;
+    //std::cout<<"verify" << n1 << n2 << n3;
     digits.push_back(n3);
     if(verify_digit(n2))digits.push_back(n2);
     else return false;

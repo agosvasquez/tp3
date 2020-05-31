@@ -5,33 +5,32 @@
 #include <string.h>
 
 ServerProxy::ServerProxy(Socket s,Game& game, int number):
-socket(std::move(s)),my_number(number), helper(game),intents(10){
+socket(std::move(s)),my_number(number), helper(game),intents(10), winner(false), game(game){
    
 }
 
 ServerProxy::~ServerProxy(){
+    std::cerr << "Cliente desconectado." << std::endl;
+    socket.socket_shutdown(SHUT_RDWR);
 }
 
 void ServerProxy::run(){
-    
     std::tuple<int,char*> tuple(0,0);
     while(has_intents()){
         try{
-             
             short r = recive();
             tuple = helper.decode_command(command,r,my_number);
-            
             send(std::get<1>(tuple), std::get<0>(tuple));
-            
-            if((int)r == my_number){
-                socket.socket_shutdown(SHUT_RDWR);
+            if ((int)r  == my_number) {
+                winner=true;
+                game.increment_winners();
                 return;
-            }  
+            }
         }catch(const std::exception& e){
             return;
         }
     }
-   
+    game.increment_losers();
 }
 short ServerProxy::recive(){
     int size =2;
@@ -61,6 +60,10 @@ void ServerProxy::spend_intent(){
 }
 
 bool ServerProxy::has_intents(){
-    std::cout << intents << std::endl;
+    //std::cout << intents << std::endl;
     return intents > 0;
+}
+
+bool ServerProxy::is_winner(){
+    return winner;
 }

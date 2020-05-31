@@ -12,9 +12,11 @@ private:
     int my_number;
     ServerHelper helper;
     std::atomic<int> intents;
+    std::atomic<bool> winner;
     char data_rec[256];
     char data_sen[256];
     char command;
+    Game& game;
 public:
     ServerProxy(Socket s,Game& game, int number);
     ~ServerProxy();
@@ -23,6 +25,7 @@ public:
     void run();
     void spend_intent();
     bool has_intents();
+    bool is_winner();
 };
 
 

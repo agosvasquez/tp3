@@ -22,9 +22,8 @@ int main(int argc, char *argv[]) {
 	while(std::cin >> line)
 		if (line == QUIT){acceptor.stop(); break;}
 	
-    std::cout<< "join" << std::endl;
+    //std::cout<< "join" << std::endl;
     acceptor.join();
-
 
     return 0;
 }
