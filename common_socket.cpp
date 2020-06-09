@@ -61,24 +61,19 @@ int Socket::find_socket(struct addrinfo** res, int& sfd){
 }
 
 int Socket::socket_bind_and_listen(const char* service){
-    struct addrinfo hints, *res;
+    struct addrinfo hints, *res, *r;
     int s, sfd=0;
     int opt =1;
+    socket_settings(std::ref(hints)); 
+    if ((s = getaddrinfo(NULL,service, &hints, &res)) != 0) 
+        throw Error("fallo gett");
     
-    socket_settings(hints); 
-    if ((s = getaddrinfo(NULL,service, &hints, &res)) != 0) {
-         std::cout << "fallo gett";
-        return -1;
+    for (r=res ; r != NULL; r = r->ai_next) {
+        sfd = socket(r->ai_family, r->ai_socktype,r->ai_protocol);
+        if (sfd == -1) continue;
     }
-       
-        //throw_sterr("getaddrinfo:", gai_strerror(s));
+    if (sfd == -1) throw Error("could not create socket");
     
-    if ((sfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol))< 0){
-        std::cout << "fallo crear socket";
-        freeaddrinfo(res);
-        return -1;
-        //throw_error("create socket");
-    }
     if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0){
         std::cout << "fallo setsockop error";
         freeaddrinfo(res);
