@@ -3,6 +3,7 @@
 #include <string.h>
 #include <vector>
 #include<tuple>
+#include "client_command.h"
 
 namespace{
    int SIZE_STRING = 4;  
@@ -10,48 +11,32 @@ namespace{
 
 ClientProxy::ClientProxy(){}
 
-ClientProxy::~ClientProxy(){
+ClientProxy::~ClientProxy(){}
 
-}
-
-void ClientProxy::run(std::string line){
-    std::tuple<int,char*> data = encode.get_command_encoded(line);
-    if(std::get<0>(data) == 0)return;
-    send_command(std::get<1>(data), std::get<0>(data));
-    char* answer =recive_answer();
-    std::cout << answer <<std::endl;
-}
-
-void ClientProxy::send_command(char* data, int size){
-    char aux[5];
-    memcpy(aux,data,size);
-    int bytes = socket.socket_send(aux, size);
-    if (bytes <= 0) {
-        throw ClientExeption();
+void ClientProxy::run(std::string& line){
+    try{
+        ClientCommand *cmd = ClientCommand::get_command(line); 
+        cmd->execute(protocol , socket);
+        delete cmd;
+        recive_answer();
+        std::cout << response << std::endl;
+    }catch(InvalidCommand& e){
+        printf("%s", e.what());
+        return;
     }
-    
 }
 
-char* ClientProxy::recive_answer(){
-    uint32_t size=0;;
-    memset(data_rec,0,256);
+
+void ClientProxy::recive_answer(){
+    std::string string_size;
+    response.clear();
     //getting size
-    if (socket.socket_receive((char*)&size, SIZE_STRING)<=0) {
-        throw ClientExeption();
-    }
-    
-    if (socket.socket_receive(data_rec, size+1)<=0) {
-        throw ClientExeption();
-    }
-    static char aux[256];
-    memset(aux,0,256);
-    memcpy(aux,data_rec,size);
-    return aux;
+    protocol.receive_size(socket,string_size, SIZE_STRING);
+    int size = std::stoi(string_size);
+    protocol.receive(socket, response, size);
 }
 
 void ClientProxy::connect(char*host, char* service){
-    if(socket.socket_connect(host, service)<0){
-        throw ClientExeption(); 
-    } 
+    socket.socket_connect(host, service);
 }
 
