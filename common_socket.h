@@ -4,26 +4,19 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
-
-
-class SocketExeption : public std::exception {
-public:
-   const char *what() const throw() {
-      return "Socket accept fail!\n";
-   }
-};
+#include "common_error.h"
 
 
 class Socket{
-private:
+protected:
     int queue_len_listen;
-   
+    int find_socket(struct addrinfo** res, int& sfd);
+    explicit Socket(int fd);
 public:
     int fd;
     Socket();
     ~Socket();
-    Socket(Socket&& other);
-    Socket(int fd);
+    Socket(Socket&& other)noexcept;
     Socket& operator=(Socket&& other);
     void socket_settings(struct addrinfo& hints);
     void socket_shutdown(int channel);
