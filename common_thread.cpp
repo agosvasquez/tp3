@@ -1,4 +1,5 @@
 #include "common_thread.h"
+#include <utility>
 
 Thread::Thread() {}
 
@@ -13,3 +14,11 @@ void Thread::join() {
 	thread.join();
 }
 
+Thread::Thread(Thread&& other) {
+	this->thread = std::move(other.thread);
+}
+
+Thread& Thread::operator=(Thread&& other) {
+	this->thread = std::move(other.thread);
+	return *this;
+}

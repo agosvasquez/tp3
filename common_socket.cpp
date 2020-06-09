@@ -16,10 +16,9 @@ Socket::~Socket(){
     if (fd != -1)
         close(fd);
 }
-
 Socket::Socket(int fd):fd(fd){}
 
-Socket::Socket(Socket&& other) : fd(other.fd) {
+Socket::Socket(Socket&& other)noexcept : fd(other.fd) {
     other.fd = -1;
 }
 
@@ -31,10 +30,10 @@ Socket& Socket::operator=(Socket&& other){
 
 
 void Socket::socket_settings(struct addrinfo& hints){
+    memset(&hints,0,sizeof(struct addrinfo));
     hints.ai_family= AF_INET;
     hints.ai_socktype= SOCK_STREAM;
     hints.ai_flags = 0;
-    hints.ai_protocol= 6;
 }
 
 void Socket::socket_shutdown(int channel){
@@ -75,24 +74,18 @@ int Socket::socket_bind_and_listen(const char* service){
     if (sfd == -1) throw Error("could not create socket");
     
     if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0){
-        std::cout << "fallo setsockop error";
         freeaddrinfo(res);
-        return -1;
-        //throw_error("setsockop error");
+        throw Error("setsockop error");
     }    
+    
     if (bind(sfd, res->ai_addr, res->ai_addrlen) < 0){
-        std::cout << "fallo bind";
         freeaddrinfo(res);
-        return -1;
-        //throw_error("Bind error");
+        throw Error("Bind error");
     }
     if (listen(sfd, queue_len_listen) < 0){
-        std::cout << "lisnte error";
         freeaddrinfo(res);
-        return -1;
-        //throw_error("Listen error");
+        throw Error("Listen error");
     }
-    
     freeaddrinfo(res);
     fd = sfd; 
     return 0;            
@@ -100,43 +93,24 @@ int Socket::socket_bind_and_listen(const char* service){
 
 Socket Socket::socket_accept(){
     int s = accept(fd, NULL,NULL);
-    if (s < 0) {
-        //std::cout << "not accepted connection";
-        //CAMBIAR NO OLVIDARSE SOLO LOCAL
-        throw SocketExeption();//throw_error("Not accepted connection");
-    }
-    
+    if (s < 0) throw Error("Not accepted connection");
     return std::move(Socket(s));
 }
 
 int Socket::socket_connect(const char* host_name, const char* service){
-    struct addrinfo hints, *res, *r;
-    int s, socket_fd;
+    struct addrinfo hints, *res;
+    int s, sfd;
 
     socket_settings(hints);
 
-    if ((s = getaddrinfo(host_name, service, &hints,&res)) !=0) {
-        std::cout << "fallo getaddr";
-        return-1;
+    if ((s = getaddrinfo(host_name, service, &hints,&res)) !=0){
+        throw Error("fail getadd");
+    } 
+       
+    if (find_socket(&res,std::ref(sfd)) < 0) {  
+        throw Error("couldn connect");
     }
-        
-        //throw_sterr("getaddr:", gai_strerror(s));
-   r = res;
-   for ( r = res; r != NULL; r = r->ai_next) {
-        socket_fd = socket(r->ai_family, r->ai_socktype,r->ai_protocol);
-        if (socket_fd == -1) continue;
-        if (connect(socket_fd, r->ai_addr, r->ai_addrlen) != -1){
-            fd = socket_fd;
-            break;                  
-        }
-        close(socket_fd);
-    }
-    if (!r) {
-        std::cout << "not connected";
-        freeaddrinfo(res); 
-        return -1;
-        //throw_sterr("Could not connect\n", NULL);               
-    }
+    fd = sfd;
     freeaddrinfo(res);  
     return 0;
 }
@@ -146,12 +120,8 @@ int Socket::socket_send(char* buff , size_t length){
     int bytes =0;
     int to_send= length;
     while (sum_b != length){
-        if ((bytes = send(fd,buff+sum_b,to_send,MSG_NOSIGNAL))<0){
-            std::cout << "fallo send";
-            return -1;
-        } 
-            
-            //throw_error("send failed");
+        if ((bytes = send(fd,buff+sum_b,to_send,MSG_NOSIGNAL))<0)    
+            throw Error("send failed");
         sum_b += bytes;
         to_send -= bytes;
     }
@@ -163,19 +133,15 @@ int Socket::socket_receive(char* buff, size_t length){
     int bytes = 0;
     int to_read = length;
     while (sum_b != length){
-        if ((bytes = recv(fd, buff+sum_b, to_read,0)) <0){
-            std::cout << "fallo recv";
-            return -1;
-        } 
-
-            //throw_error("recive failed");
+        if ((bytes = recv(fd, buff+sum_b, to_read,0)) <0)
+            throw Error("recive failed");
         // client closed
         if (bytes == 0) return 0;
         sum_b += bytes;
-        to_read -= bytes;
-    
+        to_read -= bytes;  
     }
     memcpy(buff + length, "\0", 1);
-    
     return sum_b;
 }
+
+

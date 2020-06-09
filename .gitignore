@@ -31,4 +31,10 @@
 *.out
 *.app
 .vscode/
+__server_stderr__
+__server_stdout__
+cpplint.py
+filter_options
+free_port.sh
+run.sh
 
