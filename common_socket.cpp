@@ -4,14 +4,17 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <utility>
 #include <exception>
 #include <vector>
+#include <functional>
+#include "common_error.h"
 
 Socket::Socket():queue_len_listen(10), fd(-1){}
 
 Socket::~Socket(){
-    if(fd != -1)
-        socket_shutdown(SHUT_RDWR);
+    if (fd != -1)
+        close(fd);
 }
 
 Socket::Socket(int fd):fd(fd){}
@@ -35,10 +38,26 @@ void Socket::socket_settings(struct addrinfo& hints){
 }
 
 void Socket::socket_shutdown(int channel){
-    //std::cout << "shutdown: "<< fd;
     shutdown(fd, channel);
-    close(fd);
-    fd = -1;
+}
+
+int Socket::find_socket(struct addrinfo** res, int& sfd){
+    struct addrinfo*r = *res;
+    int socket_fd;
+    for (; r != NULL; r = r->ai_next) {
+        socket_fd = socket(r->ai_family, r->ai_socktype,r->ai_protocol);
+        if (socket_fd == -1) continue;
+        if (connect(socket_fd, r->ai_addr, r->ai_addrlen) != -1){
+            sfd = socket_fd;
+            break;                  
+        }
+        close(socket_fd);
+    }
+    if (!r) {
+        freeaddrinfo(*res); 
+        return -1;            
+    }
+    return 0;
 }
 
 int Socket::socket_bind_and_listen(const char* service){
