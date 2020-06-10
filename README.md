@@ -1,4 +1,4 @@
-# tp2
+# tp3
 
 * Nombre y apellido: Agostina Vásquez
 * Padrón: 99689
@@ -23,4 +23,6 @@ procesa el mensaje ingresado por consola y devulve la respuesta al servidor.
 
 *Aceptor: Es quien acepta los nuevos clientes en el servidor. 
 
+![Diagrama Client](client_diagram_tp3.png)
 
+![Diagrama Server](server_diagram_tp3.png)
