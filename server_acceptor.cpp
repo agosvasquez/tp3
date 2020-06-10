@@ -25,7 +25,6 @@ void Acceptor::run(){
             clients.push_back(new ServerProxy(std::move(skt),
              number, std::ref(stadistics)));
             clients[clients.size()-1]->start();
-            //std::cout << "Aca en acceptor";
         }catch(const std::exception& e){
             return;
         }
